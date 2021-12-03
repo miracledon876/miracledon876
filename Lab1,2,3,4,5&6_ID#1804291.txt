@@ -1,0 +1,912 @@
+CREATE DATABASE StudentLoan_1804291;
+USE StudentLoan_1804291;
+
+CREATE TABLE School
+(
+	School_ID varchar(11) PRIMARY KEY,
+	Institution varchar(15),
+	Street# varchar(10),
+	StreetName varchar(15),
+	Parish varchar(10),
+);
+
+
+
+
+CREATE TABLE Borrower
+(
+	TRN varchar(11) PRIMARY KEY,
+	FirstName varchar(15),
+	LastName varchar(15),
+	Gender varchar,
+	Email varchar(40),
+	Street# varchar(10),
+	StreetName varchar(25),
+	Parish varchar(15),
+	School_ID varchar(11),
+	CONSTRAINT fk_Borrower FOREIGN KEY(School_ID) REFERENCES School(School_ID)
+);
+
+CREATE TABLE Parent
+(
+	PTRN varchar(11) PRIMARY KEY,
+	FirstName varchar(15),
+	LastName varchar(15),
+	Gender varchar,
+	Occupation varchar(20),
+	NumberOfDenpendency int,
+	GrossSalary float
+);
+
+
+CREATE TABLE Guarantor
+(
+	GTRN varchar(11) PRIMARY KEY,
+	f_name varchar(15),
+	l_name varchar(15),
+	Gender varchar,
+	TRN varchar(11),
+	CONSTRAINT fk_Guarantor FOREIGN KEY(TRN) REFERENCES Borrower(TRN) 
+);
+
+
+CREATE TABLE Borrower_Parent
+(
+	TRN varchar(11),
+	PTRN varchar(11),
+	PRIMARY KEY(TRN, PTRN),
+	Relation varchar(15),
+	CONSTRAINT fk_Borrower_Parent_I FOREIGN KEY(TRN) REFERENCES Borrower(TRN),
+	CONSTRAINT fk_Borrower_Parent_II FOREIGN KEY (PTRN) REFERENCES PARENT(PTRN),
+);
+
+
+CREATE TABLE Borrower_Phone
+(
+	TRN varchar(11),
+	Phone varchar(14),
+	PRIMARY KEY(TRN, Phone),
+	CONSTRAINT fk_Borrower_TRN FOREIGN KEY (TRN) REFERENCES Borrower(TRN)
+);
+
+CREATE TABLE Loan
+(
+	LID varchar(11) PRIMARY KEY,
+	Type varchar(15)
+);
+
+
+CREATE TABLE Agent 
+(
+	AgentID varchar(4) PRIMARY KEY,
+	FirstName varchar(15),
+	LastName varchar(15),
+	SupID varchar(4),
+	CONSTRAINT fk_Agent FOREIGN KEY (SupID) REFERENCES Agent(AgentID)
+);
+
+
+
+CREATE TABLE LoanAgreement
+(
+	TRN varchar(11),
+	LID varchar(11),
+	PRIMARY KEY(TRN, LID),
+	AgentID varchar(4),
+	AppDate DATE,
+	Amount FLOAT,
+	CONSTRAINT fk_LoanAgreement1 FOREIGN KEY(TRN) REFERENCES Borrower(TRN),
+	CONSTRAINT fk_LoanAgreement2 FOREIGN KEY(LID) REFERENCES Loan(LID),
+	CONSTRAINT fk_LoanAgreement3 FOREIGN KEY(AgentID) REFERENCES Agent(AgentID),
+);
+
+
+
+
+--- 3. Add the following fields
+	-- a. Phone, Occupation and Gross Salary to Guarantor table.
+
+	ALTER TABLE Guarantor
+		ADD Phone varchar(14), Occupation varchar(25), GrossSalary float;
+
+
+
+--- b. Title, Phone Email to the Parent table.
+	
+	ALTER TABLE Parent
+		ADD Title varchar(3), Phone varchar(14),Email varchar(40);
+
+
+--- 4. Change the datatype of StreetName to varchar(25) for School Table.
+
+	ALTER TABLE School
+	ALTER COLUMN StreetName varchar(25);
+
+	ALTER TABLE School
+	ALTER COLUMN Institution varchar(25);
+
+	ALTER TABLE School
+	ALTER COLUMN Institution varchar(50);
+
+	ALTER TABLE School
+	ALTER COLUMN Parish varchar(50);
+
+
+--- 5. Delete the number of depenency field from the Parent table.
+
+	ALTER TABLE Parent
+	DROP COLUMN NumberOfDenpendency;
+
+
+--- 6. Create a table called dummy in your database with 3 fields of your choice.
+
+CREATE TABLE Dummy
+(
+	DummyID int,
+	Name varchar(15),
+	Gender varchar
+);
+
+DROP TABLE Dummy;
+
+
+
+
+
+/* Lab component 2 Database Design
+   Jehmoni Samuels/1804291 */
+
+--- 1. Insert data contained in table 1-6 on the datasheet.
+
+--- Table 1
+
+INSERT INTO Loan VALUES
+	('U', 'Undergraduate'),
+	('P', 'Postgraduate');
+
+SELECT *FROM Loan;	
+
+
+---Table 2
+
+INSERT INTO School VALUES
+	('UTE', 'University of Technology Jamaica', '237', 'Old Hope Road', 'Kingston'),
+	('UWI', 'University of the West Indies', '', 'Mona', 'Kingston'),
+	('MUC', 'Mico University College', '1', 'Mareacaux Road', 'Kingston'),
+	('UCC', 'University College of the Caribbean', '17', 'Worthinton Avenue', 'Kingston 5'),
+	('NCU', 'Northern Caribbean University', '', 'Manchester Road', 'Mandeville');
+
+SELECT *FROM School;	
+
+--- Add three more schools.
+INSERT INTO School(School_ID, Institution, Street#, StreetName, Parish) VALUES
+	('MCC', 'Montego Bay Community College', '46', 'Fairview', 'Saint James'),
+	('PCC', 'Portmore Community College','', 'Greater Portmore', 'Saint Catherine'),
+	('EMC', 'Edna Manley College', '5', 'Arthur Wint Dr', 'Kinston');
+
+
+
+--- Table 3
+ALTER TABLE Borrower
+ADD Institution varchar(50)
+
+INSERT INTO Borrower VALUES
+	('304583195', 'Andre', 'Walker', 'M', 'awalker@yahoo.com', '5409', 'Red Hills Road', 'Kinston','NCU', 'Northern Caribbean University'),
+	('895811838', 'Abby', 'Smith', 'F', 'abbysmith@gmail.com', '28', 'Maxfield Avenue', 'Kinston 13', 'NCU', 'Northern Caribbean University'),
+	('131412398', 'Jordaine', 'Marshall', 'F', 'jormarshall@outlook.com', '92B', 'Manor Park Road', 'Saint Elizabeth', 'UTE', 'University of Technology Jamaica'),
+	('604185832', 'Owen', 'White', 'M', 'owendaboss@gmail.com', '100', 'Bloomfield Drive', 'Kinston 5', 'UTE', 'University of Technology Jamaica'),
+	('752943999', 'Jordane', 'Gilzine', 'F', 'jordielady@yahoo.com', '456', 'Main Street', 'Saint catherine', 'UTE', 'University of Technology Jamaica'),
+	('540872825', 'Anne Marie', 'Spencer', 'F', 'spencerann@gmail.com', '203', 'McDonald Lane', 'Kinston 11', 'UWI', 'University of the West Indies'),
+	('548095667', 'Olivia', 'Blake', 'F', 'blake876@yahoo.com', '67', 'Washington Lane', 'Saint Andrew', 'UWI', 'University of the West Indies'),
+	('725434261', 'Joshua', 'Gilzine', 'M', 'joshgil@gmail.com', '890', '890 Seaview Avenue', 'Saint Ann', 'UWI', 'University of the West Indies'),
+	('894693023', 'Jimmy', 'Flynn', 'M', 'jflynn@outlook.com', '21B', 'Marcus Garvey Drive', 'Kinston 10', 'MUC', 'Mico University College'),
+	('542324920', 'Stanley', 'Walsh', 'M', 'walshstan@yahoo.com', '13', 'Totley Avenue', 'Kinston 5', 'MUC', 'Mico University College');
+
+SELECT *FROM Borrower;
+
+--- Add 5 more Borrower.
+INSERT INTO Borrower(TRN, FirstName, LastName, Gender, Email, Street#, StreetName, Parish, School_ID, Institution) VALUES
+	('098345217', 'Javane', 'Roach', 'M', 'jroach@gmail.com', '105', 'Llandilo', 'Westmoreland', 'UTE', 'University of Technology Jamaica'),
+	('123789456', 'Jason', 'Smalling', 'M', 'josonsmallingz@outlook,com', '4B','Little London', 'Westmoreland', 'UWI', 'University of the West Indies'),
+	('128013907', 'Janice', 'McKnight', 'F', 'nightjanice@yahoo.com', '90', 'Form Pen', 'Saint James', 'MUC', 'Mico University College'),
+	('301907975', 'Diondra', 'Samuels', 'F', 'samuelsdiondra@hotmail.com', '2A', 'Iron Shore', 'Saint James', 'NCU', 'Northern Caribbean University'),
+	('097310128', 'Daniel', 'Pringle', 'F', 'pringleniel@gmail.com', '3C', 'Petersfield', 'Manchester', 'UTE', 'University of Technology Jamaica');
+
+
+--- Table 4
+INSERT INTO Agent VALUES
+	('A001', 'Troy', 'Hunt', 'A001'),
+	('A002', 'Andre', 'March', 'A002'),
+	('A003', 'Louis', 'Davids','A003'),
+	('A004', 'Rose-marie', 'Dixon', 'A004'),
+	('A005', 'Terri', 'Neil', 'A005');
+
+SELECT *FROM Agent;
+
+
+--- Table 5
+INSERT INTO Parent VALUES
+	('424678103', 'Raymond', 'White', 'M', 'Teacher', '150000', 'Mr', '8768575585', 'rwhttle@gmail.com'),
+	('680780799', 'Fiona', 'Harrison', 'F', 'Business Woman', '225000', 'Mrs', '8765252524', 'fionah@yahoo.com'),
+	('974423320', 'Roy', 'Flynn', 'M', 'Banker', '250000', 'Mr', '8768565241', 'Mallet.Rohan@gmail.com'),
+	('937454556', 'Jodiann', 'Pinnock', 'F', 'Teacher', '170693', 'Mrs', '8763526425', 'TeacherJo@outlook.com'),
+	('157223950', 'Nicole', 'Dickson', 'F', 'Lawyer', '217000', 'Ms', '8762543518', 'Nicole.Dickson@gmail.com');
+
+SELECT *FROM Parent;
+
+--- Add 5 more Parents.
+INSERT INTO Parent(PTRN, FirstName, LastName, Gender, Occupation, GrossSalary, Title, Phone, Email) VALUES
+	('132651009', 'Vanessa', 'Henry', 'F', 'Accountant', '210000', 'Ms', '8762434421', 'nessahenry@gmail.com'),
+	('080129010', 'Tajay', 'Riley', 'M', 'Taxi Driver', '80000', 'Mr', '8760014505', 'rileytaj@gmail.com'),
+	('092876743', 'Amoy', 'Campbell', 'F', 'Sales Associate', '150000', 'Mrs', '8761236788', 'campbell@hotmail.com'),
+	('098765234', 'Jhaneil', 'Graham', 'F', 'Air Hostess', '180900', 'Ms','8764561236', 'jgraham@gmail.com'),
+	('011293847', 'jamie', 'Williams', 'M', 'Technician', '90000', 'Mr', '8761243908', 'jamiewilli@yahoo.com');
+
+
+--- Table 6
+ALTER TABLE Guarantor
+		ADD SecuringBorrower varchar(25);
+
+INSERT INTO Guarantor VALUES
+	('249935470', 'Anastasha', 'Alexander', 'F', '304583195', '8765336325', 'Receptionist', '78102.75', 'Andrew Walker'),
+	('231939074', 'Jessica', 'Taylor', 'F', '895811838', '8766579874', 'Cook', '81611.60', 'Abby Smith'),
+	('358992658', 'Ann-Marie', 'Sammings', 'F', '604185832', '8768677981', 'Receptionist',  '159000.80', 'Owen White'),
+	('761204593', 'Simone', 'Cooper', 'F', '752943999', '8764737456', 'Market Director', '210323.82', 'Jordane Gilzine'),
+	('841855360', 'Sophia', 'Graham', 'F', '540872825', '8764321235', 'Cook',  '103652.45', 'Anne Marie Spencer'),
+	('329535618', 'Ashley', 'Stewart', 'F', '548095667', '8764533513', 'Coroner', '174263.32', 'Olivia Blake'),
+	('370780048', 'Christopher', 'Murray', 'M', '542324920', '8768225435', 'Occupational Therapist','288232.24', 'Stanley Walsh');
+
+
+
+
+SELECT *FROM Guarantor;
+
+
+--- WRITTEN PROMPTS
+--- A. Owen White's father is Raymond White and Mother is Jodiann Pinnock.
+
+--SELECT FirstName, lastName
+--FROM Parent;
+
+INSERT INTO Borrower_Parent(TRN, PTRN, Relation) VALUES
+	('604185832', '424678103', 'Father'),
+	('604185832', '937454556', 'Mother'),
+	('548095667', '157223950', 'Aunt'),
+	('894693023', '974423320', 'Father'),
+	('752943999', '974423320', 'Uncle');
+
+SELECT *FROM Borrower_Parent;
+
+INSERT INTO Borrower_Parent(TRN, PTRN, Relation) VALUES
+	('098345217', '132651009', 'Sister'),
+	('301907975', '080129010', 'Brother'),
+	('097310128', '937454556', 'Cousin'),
+	('131412398', '680780799', 'Aunt'),
+	('542324920', '011293847', 'Friend');
+
+
+
+--- The following loan exist.
+INSERT INTO LoanAgreement VALUES('752943999  U', 'A001', '2016-04-22', 850,000.00);
+INSERT INTO LoanAgreement VALUES('540872825  U', 'A003', '2016-10-18', 900,000.00);
+INSERT INTO LoanAgreement VALUES('548095667  U', '', '2017-10-20', 1,500,000.00);
+INSERT INTO LoanAgreement VALUES('752943999  P', 'A004', '2019-08-30', 2,400,000.00);
+INSERT INTO LoanAgreement VALUES('304583195  P', 'A003', '2020-07-27', 1,750,000.00);
+INSERT INTO LoanAgreement VALUES('895811838  P', '', '2020-05-14', 1,800,000.00);
+
+SELECT *FROM LoanAgreement;
+
+--- Add 10 more Loan Agreements
+INSERT INTO LoanAgreement(TRN, LID, AgentID, AppDate, Amount) VALUES
+	('098345217', 'U', 'A001', '2018-04-19', 390,000.00),
+	('123789456', 'U', 'A002', '2015-09-29', 460,000.00),
+	('128013907', 'U', 'A005', '2017-03-17', 740,000.00),
+	('301907975', 'U', 'A004', '2016-08-13', 510,000.00),
+	('097310128', 'U', 'A001', '2019-03-27', 300,000.00),
+	('131412398', 'P', 'A002', '2015-02-23', 890,000.00),
+	('604185832', 'P', 'A003', '2016-05-28', 955,000.00),
+	('725434261', 'P', 'A004', '2018-09-23', 710,000.00),
+	('894693023', 'P', 'A005', '2017-07-15', 820,000.00),
+	('542324920', 'P', 'A001', '2016-09-12', 650,000.00);
+
+
+
+
+--- 3. Make a full backup of Borrower.
+CREATE TABLE Borrower_Backup
+(
+	TRN varchar(11) PRIMARY KEY,
+);
+DROP TABLE Borrower_Backup;
+	
+CREATE TABLE Borrower_Backup 
+(
+	TRN varchar(11) PRIMARY KEY,
+	FirstName varchar(15),
+	LastName varchar(15),
+	Gender varchar,
+	Email varchar(40),
+	Street# varchar(10),
+	StreetName varchar(25),
+	Parish varchar(15),
+	School_ID varchar(11),
+	CONSTRAINT fk_Borrower_backup FOREIGN KEY(School_ID) REFERENCES School(School_ID)
+
+);
+
+ALTER TABLE Borrower_Backup
+	ADD Institution varchar(50)
+
+INSERT INTO Borrower_Backup
+SELECT *FROM Borrower;
+
+SELECT *FROM Borrower_Backup;
+
+
+--- 4. Change all the parishes in the Borrower_Backup to St. Mary.
+UPDATE Borrower_Backup set Parish = 'Saint Mary';
+
+
+--- 5. Reduce all undergraduate loan amount by 10%.
+UPDATE Borrower_Backup set Amount = Amount - (Amount * 0.1);
+
+
+--- 6. Assign supervisor according to the hierarchy.
+
+
+SELECT *FROM Agent
+ORDER BY LastName ASC;
+
+
+SELECT FirstName, LastName
+FROM Agent
+ORDER BY LastName ASC; 
+
+--- 7. Jordane Gilzine's name is actually Jordane Jackson. Write a single query to make the change.
+UPDATE Borrower set LastName = 'Jackson' WHERE FirstName = 'Jordane';
+
+SELECT *FROM Borrower;
+
+
+
+--- 8. Make two duplicates of the parent table.
+CREATE TABLE Parent_Copy
+(
+	PTRN varchar(11) PRIMARY KEY,
+	Title varchar(4),
+	FirstName varchar(15),
+	LastName varchar(15),
+	Occupation varchar(30),
+	GrossSalary float,
+);
+
+CREATE TABLE Parent_Copy_Copy
+(
+	PTRN varchar(11) PRIMARY KEY,
+	Title varchar(4),
+	FirstName varchar(15),
+	LastName varchar(15),
+	Occupation varchar(30),
+	GrossSalary float,
+);
+
+
+INSERT INTO Parent_Copy
+	SELECT PTRN, Title, FirstName, LastName, Occupation, GrossSalary FROM Parent;
+
+SELECT *FROM Parent_Copy;
+
+
+INSERT INTO Parent_Copy_Copy
+	SELECT PTRN, Title, FirstName, LastName, Occupation, GrossSalary FROM Parent;
+
+
+SELECT *FROM Parent_Copy_Copy;
+
+
+--- a. delete all records from Parent_Copy.
+DELETE FROM Parent_Copy;
+
+SELECT *FROM Parent_Copy;
+
+--- b. delete all teachers from the Parent_Copy_Copy.
+DELETE FROM Parent_Copy_Copy WHERE Occupation = 'Teacher';
+
+SELECT *FROM Parent_Copy_Copy;
+
+
+--- 9. miss Ann-Marie Sammings has withrawn as a gurantor.
+DELETE FROM Guarantor WHERE GTRN = '358992658';
+
+SELECT *FROM Guarantor;
+
+
+
+
+
+/* Lab component 3 Database Design
+   Jehmoni Samuels/1804291 */
+
+--- 1. Write select all statement for all tables
+
+SELECT *FROM Loan;	
+SELECT *FROM School;
+SELECT *FROM Borrower;
+SELECT *FROM Agent;
+SELECT *FROM Parent;
+SELECT *FROM Guarantor;
+SELECT *FROM Borrower_Parent;
+SELECT *FROM LoanAgreement;
+
+
+--- 2. Display only female borrowers.
+SELECT *FROM Borrower;
+SELECT *FROM Borrower WHERE Gender = 'F';
+
+
+
+--- 3. Display first name, last name, gender, occupation of all parents making $250,000 or more.
+SELECT *FROM Parent;
+SELECT FirstName, LastName, Gender, Occupation FROM Parent WHERE GrossSalary >= 250000;
+
+
+--- 4. Select borrower who DO NOT have the last name Williams.
+
+SELECT *FROM Borrower WHERE LastName != 'Williams';
+
+
+--- 5. Refine query from instruction 4 to only include those from St. Catherine.
+
+SELECT *FROM Borrower WHERE Parish = 'Saint Catherine';
+
+
+--- 6. Select all undergraduate loan applications between $890,000 and $1,200,000.
+
+SELECT LID, Amount FROM LoanAgreement WHERE LID = 'U' AND Amount BETWEEN 890000 AND 1200000;
+
+
+--- 7. List all guarantor who are cooks or receptionists. (Hint use IN).
+
+SELECT Occupation FROM Guarantor WHERE Occupation IN('Cook', 'Receptionist');
+
+
+
+--- 8. List parents sorted by salary (largest first).
+
+SELECT  *FROM Parent ORDER BY GrossSalary DESC;
+
+
+--- 9. Display borrower name, gender and email. Sort the list by last name then by first name in ascending order.
+
+SELECT FirstName, LastName, Gender, Email FROM Borrower ORDER BY LastName ASC;
+SELECT FirstName, LastName, Gender, Email FROM Borrower ORDER BY FirstName ASC;
+
+
+--- 10. List all schools. Sort parish in descending order then by parish then ascending order by school name.
+SELECT Institution FROM School;
+SELECT *FROM School ORDER BY Parish DESC;
+SELECT *FROM School ORDER BY Parish ASC;
+SELECT *FROM School ORDER BY Institution ASC;
+
+
+
+--- 11. Order instruction 3 by last name.
+
+SELECT *FROM Parent;
+SELECT FirstName, LastName, Gender, Occupation FROM Parent ORDER BY LastName ASC;
+
+
+--- 12. Calculate the processing fee for each loan. Processing fee is charged at 1.5% of the loan amount.
+SELECT LID, Amount FROM LoanAgreement;
+SELECT Amount, (Amount * 0.015) AS ProcessingFee FROM LoanAgreement;
+
+
+--- 13. Display guarantors first name, last name, gross salary and yearly salary.
+
+SELECT FirstName, LastName, GrossSalary FROM Guarantor;
+
+
+
+--- 14. Display first name and last name of all borrowers along with a new column called Address which will
+--- display their full address example ‘105 Database Road, Kingston 10’
+
+Alter Table Borrower
+	ADD Address varchar(80);
+
+
+ SELECT FirstName, LastName, CONCAT(Address, Street#+ ' ',+ StreetName + ' ', Parish) AS Address 
+ FROM Borrower;
+
+
+
+--- 15. List all parents with last name ending with ‘son’.
+SELECT *FROM Parent
+SELECT LastName, COUNT (LastName) AS Count FROM Parent GROUP BY LastName HAVING LastName LIKE '%son';
+
+
+--- 16. Display all borrowers who hail from parishes starting with ‘St’.
+SELECT *FROM Borrower
+SELECT Parish, COUNT (Parish) AS Count FROM Borrower GROUP BY Parish HAVING Parish LIKE 'Saint%';
+
+
+
+--- 17. Find the average earnings of the parents.
+
+SELECT AVG(GrossSalary) AS Average FROM Parent;
+
+
+--- 18. Find the lowest amount applied for by postgrad borrowers.
+
+SELECT MIN(Amount) AS Lowest FROM LoanAgreement WHERE Amount ='P';
+
+
+--- 19. Find the highest amount applied for by undergrad borrowers.
+
+SELECT MAX(Amount) AS Highest FROM LoanAgreement WHERE Amount = 'U';
+
+
+--- 20. Find the total borrowed for all loans.
+
+SELECT COUNT(LID) AS Count FROM LoanAgreement;
+
+
+--- 21. Find the total number of loans applied for.
+
+SELECT COUNT(LID) AS Count FROM Loan;
+
+--- 22. Find the total number of each type of loan applied for.
+
+SELECT COUNT(LID) AS Count FROM LoanAgreement WHERE LID = 'U';
+SELECT COUNT(LID) AS Count FROM LoanAgreement WHERE LID = 'P';
+
+
+
+
+
+/* Lab component 4 Database Design
+   Jehmoni Samuels/1804291 */
+
+
+--- 1. List student’s TRN, first names, last names along with their respective guarantor’s TRN, first names, last names.
+SELECT Borrower.TRN, Borrower.FirstName, Borrower.LastName, Guarantor.GTRN, Guarantor.f_name, Guarantor.l_name
+FROM Borrower INNER JOIN Guarantor
+ON Borrower.TRN = Guarantor.TRN;
+
+
+SELECT *FROM Borrower
+SELECT *FROM Guarantor
+
+
+
+---2. List all agent first names, last names and the first names, last names of the students whose loan they manage.
+SELECT Agent.FirstName, Agent.LastName, Borrower.FirstName, Borrower.FirstName
+FROM ((Agent 
+INNER JOIN LoanAgreement ON Agent.AgentID = LoanAgreement.AgentID) 
+INNER JOIN Borrower ON Borrower.TRN = LoanAgreement.TRN);
+
+
+
+---3. Refine query 2 to reflect only students living in Kingston and St. Catherine.
+SELECT Agent.FirstName, Agent.LastName, Borrower.FirstName, Borrower.FirstName, Borrower.Address
+FROM ((Agent 
+INNER JOIN LoanAgreement ON Agent.AgentID = LoanAgreement.AgentID) 
+INNER JOIN Borrower ON Borrower.TRN = LoanAgreement.TRN)
+WHERE Borrower.Address = 'Kingston' AND Borrower.Address = 'Saint Catherine';
+
+
+---4. Do an inner join to show all borrowers names and gender, the type of loan they borrowed and the date the applied for the loan.
+SELECT Borrower.FirstName, Borrower.LastName, Borrower.Gender, Loan.Type, LoanAgreement.AppDate
+FROM (( Borrower
+INNER JOIN Loan ON Loan.LID = Loan.Type)
+INNER JOIN LoanAgreement ON LoanAgreement.LID = Loan.Type);
+
+
+---5. Redo query 4 as a left join. How does the result differ?
+SELECT Borrower.FirstName, Borrower.LastName, Borrower.Gender, Loan.Type, LoanAgreement.AppDate
+FROM (( Borrower
+LEFT JOIN Loan ON Loan.LID = Loan.Type)
+LEFT JOIN LoanAgreement ON LoanAgreement.LID = Loan.Type);
+
+
+---6. Redo query 5 to only include students who do not currently have a loan application.
+SELECT Borrower.FirstName, Borrower.LastName, Borrower.Gender, Loan.Type, LoanAgreement.AppDate
+FROM (( Borrower
+LEFT JOIN Loan ON Loan.LID = Borrower.TRN)
+LEFT JOIN LoanAgreement ON LoanAgreement.AgentID = Loan.LID)
+WHERE LoanAgreement.AppDate != Loan.LID;
+
+
+---7. List parent’s first names, last names and their relation students with their first names, last names an gender.
+SELECT Borrower_Parent.TRN, Borrower_Parent.PTRN, Borrower_Parent. Relation, Borrower.FirstName, Borrower.LastName, Borrower.Gender
+FROM Borrower_Parent INNER JOIN Borrower
+ON Borrower_Parent.TRN = Borrower.TRN;
+
+
+---8. Redo query 7 as a right join. What do you observe?
+SELECT Borrower_Parent.TRN, Borrower_Parent.PTRN, Borrower_Parent. Relation, Borrower.FirstName, Borrower.LastName, Borrower.Gender
+FROM Borrower_Parent RIGHT JOIN Borrower
+ON Borrower_Parent.TRN = Borrower.TRN;
+
+
+---9. List the first name, last name and telephone number for parents of UTECH students only.
+SELECT Parent.FirstName, Parent.LastName,Parent.Phone, School.Institution
+FROM Parent INNER JOIN School 
+ON Parent.PTRN = School.School_ID
+WHERE Institution = 'University of Technology';
+
+
+---10. Redo query 7 as a full join.
+SELECT Parent.FirstName, Parent.LastName,Parent.Phone, School.Institution
+FROM Parent FULL JOIN School 
+ON Parent.PTRN = School.School_ID
+WHERE Institution = 'University of Technology';
+
+
+
+---11. List all agents’ names along with the name of their supervisors.
+ 
+
+
+
+---12. List the total loan amount being managed by each agent. Show their name and respective totals. (Hint use SUM and GROUP BY)
+
+
+
+
+
+
+
+/* Lab component 5 Database Design
+   Jehmoni Samuels/1804291 */
+
+---1. Add a column to the borrower table – DOB
+ALTER TABLE Borrower
+ADD DOB date;
+
+
+
+---2. Add dates of birth for the original 10 borrowers according to Table 1 below. 
+UPDATE Borrower SET DOB = '06/10/1988' where TRN = 304583195;
+UPDATE Borrower SET DOB = '05/21/1997' where TRN = 895811838;
+UPDATE Borrower SET DOB = '07/18/1997' where TRN = 131412398;
+UPDATE Borrower SET DOB = '02/04/1997' where TRN = 604185832;
+UPDATE Borrower SET DOB = '09/30/1993' where TRN = 752943999;
+UPDATE Borrower SET DOB = '01/16/1995' where TRN = 540872825;
+UPDATE Borrower SET DOB = '05/02/1992' where TRN = 548095667;
+UPDATE Borrower SET DOB = '03/08/1986' where TRN = 725434261;
+UPDATE Borrower SET DOB = '04/11/1986' where TRN = 894693023;
+UPDATE Borrower SET DOB = '09/14/1990' where TRN = 542324920;
+
+--- Add dates of birth for your 5 additional borrowers as you see fit.
+UPDATE Borrower SET DOB = '02/17/2000' where TRN = 098345217;
+UPDATE Borrower SET DOB = '10/28/1994' where TRN = 123789456;
+UPDATE Borrower SET DOB = '12/31/1987' where TRN = 128013907;
+UPDATE Borrower SET DOB = '08/15/1998' where TRN = 301907975;
+UPDATE Borrower SET DOB = '07/25/2000' where TRN = 097310128; 
+
+
+SELECT *FROM Borrower
+
+
+---3. Display first name, last name, DOB and age for all borrowers
+SELECT FirstName, LastName, DOB,DATEDIFF(YEAR,DOB,GETDATE()) as Age
+FROM Borrower;
+
+
+---4. Display first name, last name, DOB for all borrowers born in May and September.
+SELECT FirstName, LastName, DOB, DATEDIFF (Year, DOB, GETDATE()) as Age
+FROM Borrower 
+WHERE MONTH(DOB) = 5 OR  MONTH(DOB) = 9;
+
+
+---5. Display first name, last name and age for all borrowers over 20 but less than 30 years old.
+SELECT FirstName, LastName, DATEDIFF (Year, DOB, GETDATE()) as Age
+FROM Borrower 
+WHERE MONTH(DOB) > 20 OR MONTH(DOB) < 30;
+
+
+---6. Display first name, last name, DOB for all borrowers born in the third and fourth quarters of the year.
+SELECT FirstName, LastName, DOB FROM Borrower
+WHERE MONTH(DOB) >= 7 AND MONTH(DOB) <= 9;
+
+
+---7. Display first name, last name, application date and amount for loan application that were made 6 months ago.
+SELECT Borrower.FirstName, Borrower.LastName, LoanAgreement.AppDate, LoanAgreement.Amount
+FROM Borrower INNER JOIN LoanAgreement
+ON Borrower.TRN = LoanAgreement.TRN
+WHERE AppDate<= DATEADD(MONTH, 6, GETDATE());
+
+
+---8. Display first name, last name of female borrowers and amount for loan applications that were made 6 months ago.
+SELECT Borrower.FirstName, Borrower.LastName, LoanAgreement.Amount
+FROM (SELECT *FROM Borrower WHERE Gender = 'F') as Borrower INNER JOIN LoanAgreement
+ON Borrower.TRN = LoanAgreement.TRN
+WHERE AppDate<= DATEADD(MONTH, 6, GETDATE());
+
+
+---9. Display first name, last name and schools of borrowers with first name starting with ‘J’
+SELECT FirstName, LastName, Institution FROM Borrower 
+WHERE FirstName LIKE 'J%';
+
+
+
+---10. List agent’s first name, last name, LID, Amount for loan agreements under two million dollars.
+SELECT Agent.FirstName, Agent.LastName, LoanAgreement.LID, LoanAgreement.AgentID
+FROM Agent INNER JOIN LoanAgreement
+ON  Agent.AgentID = LoanAgreement.AgentID
+WHERE Amount < 2000000;
+
+
+
+---11. Display first name, last name for all borrowers who applied one million dollars or more.
+SELECT Borrower.FirstName, Borrower.LastName, LoanAgreement.Amount
+FROM Borrower INNER JOIN LoanAgreement
+ON Borrower.TRN = LoanAgreement.TRN
+WHERE Amount > 1000000;
+
+
+
+---12. Refine query 11 for male borrowers only.
+SELECT Borrower.FirstName, Borrower.LastName, LoanAgreement.Amount
+FROM(SELECT *FROM Borrower WHERE Gender = 'M')as  Borrower INNER JOIN LoanAgreement
+ON Borrower.TRN = LoanAgreement.TRN
+WHERE Amount > 1000000;
+
+
+--- 13. Display first name, last name for all borrowers whose loans are managed by Louis Davids.
+SELECT Borrower.FirstName, Borrower.LastName, Agent.FirstName, Agent.LastName, LoanAgreement.AppDate
+FROM ((LoanAgreement
+LEFT JOIN Agent ON Agent.AgentID = LoanAgreement.AgentID)
+LEFT JOIN Borrower ON Borrower.TRN = LoanAgreement.TRN)
+WHERE Agent.AgentID = 'Louis Davids';
+
+
+
+---14. Display first name, last name, gender and email address for borrowers from Kingston-based institutions.
+SELECT FirstName, LastName, Gender, Email FROM Borrower
+WHERE Institution = 'Kingston';
+
+SELECT *FROM Borrower
+
+
+
+/* Lab component 6 Database Design
+   Jehmoni Samuels/1804291 */
+
+--1. Create the table above screenshot object explorer with columns, key and constraints expanded
+
+CREATE TABLE Person
+(
+	Id int,
+	LastName varchar(255) NOT NULL,
+	FirstName varchar(255) NOT NULL,
+	Marital_Status char(1) DEFAULT 'S',
+	Address varchar(255),
+	Email varchar(50),
+	Parish varchar(50),
+	CONSTRAINT chk_Parish CHECK (Parish in('Kingston', 'St. Catherine', 'Portland', 'St. Andrew')),
+	Constraint chk_Marital_Status CHECK (Marital_Status='S' or Marital_Status='M'),
+	Constraint uk_email Unique(Email),
+	Constraint pk_person Primary Key(ID)
+	);
+
+
+--2. Insert a record with the parish being Manchester.
+
+INSERT INTO Person (Parish) VALUES('Manchester');
+
+--a. What do you notice? Error message... can't insert the value NULL into column. INSERT fails.
+
+--b. Is there an error message? Yes!
+
+--c. What does the error message say? Cannot insert the value NULL into column 
+--  'Id', table 'StudentLoan_1804291.dbo.Person'; column does not allow nulls. INSERT fails.
+
+--d. What is the corrective measure? You have to insert values into the 'NOT NULL' flields... Id, FN and LN. 
+--   There is no Manchester in the CHECK constarint.
+
+--e. Implement solution from 2d
+INSERT INTO Person (Id, FirstName, LastName, Parish)
+	VALUES (001, 'Jermaine', 'Brown', 'Kingston');
+
+SELECT *FROM Person
+
+
+--3. Insert a partial record leaving out the Marital Status field.
+
+INSERT INTO Person (Id, LastName, FirstName, Address, Email, Parish)
+	VALUES (002, 'Smith', 'Michael', '2A Hopeton Road', 'micsmith@gmail.com', 'St. Catherine');
+
+SELECT *FROM Person
+
+--a. Observe what is placed in the absence of the field.  If the Marital Status of the person is unknown... the program put it in for you by default!
+
+
+--4. Try to insert two records that have the same email address.
+INSERT INTO Person (Id, LastName, FirstName, Address, Email, Parish)
+	VALUES (003, 'Jackson', 'Janice', 'Beckford Street', 'janjackson@icloud.com', 'St. Andrew'),
+			(004, 'Jack', 'Janoy', 'Little London', 'janjackson@icloud.com', 'Portland'); 
+
+--a. What did you observe? Violation of UNIQUE constraint 'uk_email'. Cannot insert duplicate key in object...
+
+--b. What is the corrective measure? use  unique duplicate key...
+
+--c. Implement solution from 4b
+INSERT INTO Person (Id, LastName, FirstName, Address, Email, Parish)
+	VALUES (003, 'Jackson', 'Janice', 'Beckford Street', 'janjackson@icloud.com', 'St. Andrew'),
+			(004, 'Jack', 'Janoy', 'Little London', 'jan_jackyahoo.com', 'Portland'); 
+
+SELECT *FROM Person
+
+
+--5. Add the following constraints by altering your tables in the student loan database – screenshot object
+--   explorer for evidence
+
+--a. Each borrower’s email should be unique
+ALTER TABLE Borrower
+	ADD CONSTRAINT uq_email UNIQUE (Email);  
+	
+
+--b. A guarantor’s gross salary should be at least $50,000
+ALTER TABLE Guarantor
+	ADD CONSTRAINT CHK_GrossSal CHECK (GrossSalary>=50000 );
+
+--c. Parent gender should only accept ‘m’ or ’f’ values
+ALTER TABLE Parent
+	ADD CONSTRAINT chk_Gender CHECK (Gender ='m' or Gender='f');
+
+
+--d. Make the parent gender field ‘male’ default
+ALTER TABLE Parent
+	ADD CONSTRAINT df_Gender
+	DEFAULT 'm' FOR Gender;
+
+
+
+--6. Create a view called B_Age to store TRN, first name, last name, DOB and age for all borrowers
+
+CREATE VIEW B_Age AS
+SELECT TRN, FirstName, LastName, DOB, DATEDIFF (Year, DOB, GETDATE()) as Age 
+FROM Borrower;
+
+
+--a. Write a select statement to show the contents to the view.
+ 
+ SELECT * FROM B_Age;
+
+--b. Write a select statement to show only borrowers under 25 years old.
+
+SELECT *FROM B_Age WHERE Age <25;
+
+
+--c. Create an Insert statement and try to insert in the view.
+
+INSERT INTO B_Age(TRN, FirstName, LastName, DOB)
+	VALUES ('098326882', 'Addison', 'Carver', '07/12/1999');
+
+
+--d. Create an Update statement that updates a record in the view
+
+UPDATE B_Age set FirstName = 'Jamillah' where TRN = '098326882';
+
+SELECT * FROM B_Age;
+
+
+--e. Create a delete statement for the view.
+
+DELETE FROM B_Age WHERE TRN = '098326882';
+
+
+--7. Write a query to show the TRN, first name, last name, Gender, Gross Salary and Telephone of all
+--   parents and guarantors making over $200,000.
+
+SELECT PTRN, FirstName, LastName, Gender, GrossSalary, Phone FROM Parent WHERE GrossSalary > 200000
+UNION
+SELECT GTRN, f_name, l_name, Gender, GrossSalary, Phone FROM Guarantor WHERE GrossSalary > 200000;
+
+
+--8. Write a query to list all occupations represented in the guarantor table. (Each occupation some be listed once)
+
+SELECT DISTINCT (Occupation) FROM Guarantor;
+
+
